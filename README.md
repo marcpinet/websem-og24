@@ -46,6 +46,20 @@ Model Performance:
 - Event timeline visualization
 - Weather condition monitoring
 
+## 📈 Visualizations
+
+### Knowledge Graph (KG)
+
+https://github.com/user-attachments/assets/658f405b-1bb0-4980-a400-3d5f406004de
+
+### Medals queries
+
+https://github.com/user-attachments/assets/4e7920f0-ad43-4de1-9c53-3b1f42af2989
+
+### Simple charts
+
+![img2](./readme-assets/someviz.png)
+
 ## 🛠️ Prerequisites
 
 - Python 3.8+
