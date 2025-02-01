@@ -1,0 +1,281 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix jo: <http://example.org/jo-2024/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Base Ontology
+jo: rdf:type owl:Ontology ;
+    rdfs:label "JO 2024 Ontology"@fr, "2024 Olympics Ontology"@en ;
+    owl:versionInfo "2.0" ;
+    rdfs:comment "Ontologie pour les Jeux Olympiques de Paris 2024"@fr .
+
+# Classes de base
+jo:Entity rdf:type owl:Class .
+
+jo:Person rdf:type owl:Class ;
+    rdfs:subClassOf jo:Entity ;
+    rdfs:label "Personne"@fr, "Person"@en .
+
+jo:SportingEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Entity ;
+    rdfs:label "Événement sportif"@fr, "Sporting Event"@en .
+
+jo:Location rdf:type owl:Class ;
+    rdfs:subClassOf jo:Entity ;
+    rdfs:label "Lieu"@fr, "Location"@en .
+
+# Classes principales
+jo:OlympicGames rdf:type owl:Class ;
+    rdfs:subClassOf jo:SportingEvent ;
+    rdfs:label "Jeux Olympiques"@fr, "Olympic Games"@en ;
+    owl:hasKey (jo:hasEdition) .
+
+jo:Sport rdf:type owl:Class ;
+    rdfs:subClassOf jo:SportingEvent ;
+    rdfs:label "Sport"@fr, "Sport"@en .
+
+# Types de sports
+jo:TeamSport rdf:type owl:Class ;
+    rdfs:subClassOf jo:Sport ;
+    rdfs:label "Sport d'équipe"@fr, "Team Sport"@en .
+
+jo:IndividualSport rdf:type owl:Class ;
+    rdfs:subClassOf jo:Sport ;
+    rdfs:label "Sport individuel"@fr, "Individual Sport"@en .
+
+jo:MixedSport rdf:type owl:Class ;
+    rdfs:subClassOf jo:Sport ;
+    rdfs:label "Sport mixte"@fr, "Mixed Sport"@en .
+
+# Disciplines
+jo:Discipline rdf:type owl:Class ;
+    rdfs:subClassOf jo:Sport ;
+    rdfs:label "Discipline"@fr, "Discipline"@en ;
+    skos:altLabel "Catégorie d'épreuve"@fr .
+
+jo:TrackEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Discipline ;
+    rdfs:label "Épreuve de piste"@fr, "Track Event"@en .
+
+jo:FieldEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Discipline ;
+    rdfs:label "Épreuve de concours"@fr, "Field Event"@en .
+
+jo:AquaticsEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Discipline ;
+    rdfs:label "Épreuve aquatique"@fr, "Aquatics Event"@en .
+
+# Événements
+jo:Event rdf:type owl:Class ;
+    rdfs:subClassOf jo:SportingEvent ;
+    rdfs:label "Épreuve"@fr, "Event"@en ;
+    owl:disjointUnionOf (jo:QualifyingEvent jo:FinalEvent jo:MedalEvent) .
+
+jo:QualifyingEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Event ;
+    rdfs:label "Épreuve qualificative"@fr, "Qualifying Event"@en .
+
+jo:FinalEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Event ;
+    rdfs:label "Épreuve finale"@fr, "Final Event"@en .
+
+jo:MedalEvent rdf:type owl:Class ;
+    rdfs:subClassOf jo:Event ;
+    rdfs:label "Épreuve à médailles"@fr, "Medal Event"@en .
+
+# Participants
+jo:Athlete rdf:type owl:Class ;
+    rdfs:subClassOf jo:Person ;
+    rdfs:label "Athlète"@fr, "Athlete"@en ;
+    owl:equivalentClass [
+        rdf:type owl:Class ;
+        owl:intersectionOf (
+            jo:Person
+            [ rdf:type owl:Restriction ;
+              owl:onProperty jo:participatesIn ;
+              owl:someValuesFrom jo:Event ]
+        )
+    ] .
+
+jo:Coach rdf:type owl:Class ;
+    rdfs:subClassOf jo:Person ;
+    rdfs:label "Entraîneur"@fr, "Coach"@en .
+
+jo:Official rdf:type owl:Class ;
+    rdfs:subClassOf jo:Person ;
+    rdfs:label "Officiel"@fr, "Official"@en .
+
+# Équipes
+jo:Team rdf:type owl:Class ;
+    rdfs:subClassOf jo:Entity ;
+    rdfs:label "Équipe"@fr, "Team"@en .
+
+jo:NationalTeam rdf:type owl:Class ;
+    rdfs:subClassOf jo:Team ;
+    rdfs:label "Équipe nationale"@fr, "National Team"@en .
+
+jo:MixedTeam rdf:type owl:Class ;
+    rdfs:subClassOf jo:Team ;
+    rdfs:label "Équipe mixte"@fr, "Mixed Team"@en .
+
+# Sites
+jo:Venue rdf:type owl:Class ;
+    rdfs:subClassOf jo:Location ;
+    rdfs:label "Site"@fr, "Venue"@en .
+
+jo:Stadium rdf:type owl:Class ;
+    rdfs:subClassOf jo:Venue ;
+    rdfs:label "Stade"@fr, "Stadium"@en .
+
+jo:SwimmingPool rdf:type owl:Class ;
+    rdfs:subClassOf jo:Venue ;
+    rdfs:label "Piscine"@fr, "Swimming Pool"@en .
+
+jo:TrainingFacility rdf:type owl:Class ;
+    rdfs:subClassOf jo:Venue ;
+    rdfs:label "Installation d'entraînement"@fr, "Training Facility"@en .
+
+# Résultats
+jo:Result rdf:type owl:Class ;
+    rdfs:subClassOf jo:Entity ;
+    rdfs:label "Résultat"@fr, "Result"@en .
+
+jo:Record rdf:type owl:Class ;
+    rdfs:subClassOf jo:Result ;
+    rdfs:label "Record"@fr, "Record"@en .
+
+jo:OlympicRecord rdf:type owl:Class ;
+    rdfs:subClassOf jo:Record ;
+    rdfs:label "Record olympique"@fr, "Olympic Record"@en .
+
+jo:WorldRecord rdf:type owl:Class ;
+    rdfs:subClassOf jo:Record ;
+    rdfs:label "Record du monde"@fr, "World Record"@en .
+
+# Médailles
+jo:Medal rdf:type owl:Class ;
+    rdfs:subClassOf jo:Entity ;
+    rdfs:label "Médaille"@fr, "Medal"@en .
+
+jo:GoldMedal rdf:type owl:Class ;
+    rdfs:subClassOf jo:Medal ;
+    rdfs:label "Médaille d'or"@fr, "Gold Medal"@en .
+
+jo:SilverMedal rdf:type owl:Class ;
+    rdfs:subClassOf jo:Medal ;
+    rdfs:label "Médaille d'argent"@fr, "Silver Medal"@en .
+
+jo:BronzeMedal rdf:type owl:Class ;
+    rdfs:subClassOf jo:Medal ;
+    rdfs:label "Médaille de bronze"@fr, "Bronze Medal"@en .
+
+# Propriétés d'identification
+jo:name rdf:type owl:DatatypeProperty ;
+    rdfs:domain jo:Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "nom"@fr, "name"@en .
+
+jo:identifier rdf:type owl:DatatypeProperty ;
+    rdfs:domain jo:Entity ;
+    rdfs:range xsd:string ;
+    rdfs:label "identifiant"@fr, "identifier"@en .
+
+# Propriétés temporelles
+jo:startDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain jo:Event ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "date de début"@fr, "start date"@en .
+
+jo:endDate rdf:type owl:DatatypeProperty ;
+    rdfs:domain jo:Event ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "date de fin"@fr, "end date"@en .
+
+# Propriétés relationnelles
+jo:participatesIn rdf:type owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:domain jo:Athlete ;
+    rdfs:range jo:Event ;
+    rdfs:label "participe à"@fr, "participates in"@en .
+
+jo:hasVenue rdf:type owl:ObjectProperty ;
+    rdfs:domain jo:Event ;
+    rdfs:range jo:Venue ;
+    rdfs:label "se déroule à"@fr, "has venue"@en .
+
+jo:representCountry rdf:type owl:ObjectProperty ;
+    rdfs:domain jo:Athlete ;
+    rdfs:range jo:Country ;
+    rdfs:label "représente le pays"@fr, "represents country"@en .
+
+jo:memberOf rdf:type owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:domain jo:Athlete ;
+    rdfs:range jo:Team ;
+    rdfs:label "membre de"@fr, "member of"@en .
+
+jo:coaches rdf:type owl:ObjectProperty ;
+    rdfs:domain jo:Coach ;
+    rdfs:range jo:Athlete ;
+    rdfs:label "entraîne"@fr, "coaches"@en .
+
+jo:hasTeammate rdf:type owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:domain jo:Athlete ;
+    rdfs:range jo:Athlete ;
+    rdfs:label "a pour coéquipier"@fr, "has teammate"@en .
+
+# Propriétés de performance
+jo:hasPerformance rdf:type owl:DatatypeProperty ;
+    rdfs:domain jo:Result ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "a pour performance"@fr, "has performance"@en .
+
+jo:hasRank rdf:type owl:DatatypeProperty ;
+    rdfs:domain jo:Result ;
+    rdfs:range xsd:integer ;
+    rdfs:label "a pour rang"@fr, "has rank"@en .
+
+# Contraintes SHACL
+jo:AthleteShape rdf:type sh:NodeShape ;
+    sh:targetClass jo:Athlete ;
+    sh:property [
+        sh:path jo:name ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 
+    ] .
+
+jo:EventDateShape rdf:type sh:NodeShape ;
+    sh:targetClass jo:Event ;
+    sh:property [
+        sh:path jo:startDate ;
+        sh:lessThan jo:endDate 
+    ] .
+
+jo:ResultShape rdf:type sh:NodeShape ;
+    sh:targetClass jo:Result ;
+    sh:property [
+        sh:path jo:hasPerformance ;
+        sh:minCount 1 
+    ] .
+
+jo:MedalShape rdf:type sh:NodeShape ;
+    sh:targetClass jo:Medal ;
+    sh:property [
+        sh:path jo:medalType ;
+        sh:in ("Gold" "Silver" "Bronze")
+    ] .
+
+jo:hasWeatherCondition a owl:ObjectProperty ;
+    rdfs:domain jo:SportingEvent ;
+    rdfs:range jo:WeatherReport .
+
+jo:WeatherReport a owl:Class ;
+    rdfs:label "Weather Report"@en .
+
+jo:temperature a owl:DatatypeProperty ;
+    rdfs:domain jo:WeatherReport ;
+    rdfs:range xsd:decimal .
+
+jo:description a owl:DatatypeProperty ;
+    rdfs:domain jo:WeatherReport ;
+    rdfs:range xsd:string .

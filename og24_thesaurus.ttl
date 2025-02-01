@@ -1,0 +1,58 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix jo: <http://example.org/jo-2024/> .
+
+# schéma de concepts principal
+jo:SportsThesaurus rdf:type skos:ConceptScheme ;
+    rdfs:label "Olympic Sports Classification"@en, "Classification des Sports Olympiques"@fr ;
+    skos:hasTopConcept jo:TrackAndField, jo:Aquatics, jo:TeamSports, jo:CombatSports .
+
+# sports d'athlétisme
+jo:TrackAndField rdf:type skos:Concept ;
+    skos:prefLabel "Track and Field"@en, "Athlétisme"@fr ;
+    skos:inScheme jo:SportsThesaurus ;
+    skos:narrower jo:Running, jo:Jumping, jo:Throwing .
+
+jo:Running rdf:type skos:Concept ;
+    skos:prefLabel "Running"@en, "Course"@fr ;
+    skos:broader jo:TrackAndField ;
+    skos:narrower jo:Sprints, jo:MiddleDistance, jo:LongDistance .
+
+jo:Sprints rdf:type skos:Concept ;
+    skos:prefLabel "Sprints"@en, "Sprints"@fr ;
+    skos:broader jo:Running ;
+    skos:related jo:Relay ;
+    skos:altLabel "Sprint races"@en, "Courses de vitesse"@fr .
+
+jo:Relay rdf:type skos:Concept ;
+    skos:prefLabel "Relay"@en, "Relais"@fr ;
+    skos:broader jo:Running .
+
+# sports aquatiques
+jo:Aquatics rdf:type skos:Concept ;
+    skos:prefLabel "Aquatics"@en, "Sports Aquatiques"@fr ;
+    skos:inScheme jo:SportsThesaurus ;
+    skos:narrower jo:Swimming, jo:Diving, jo:WaterPolo .
+
+jo:Swimming rdf:type skos:Concept ;
+    skos:prefLabel "Swimming"@en, "Natation"@fr ;
+    skos:broader jo:Aquatics ;
+    skos:narrower jo:Freestyle, jo:Butterfly, jo:Backstroke, jo:Breaststroke .
+
+jo:Freestyle rdf:type skos:Concept ;
+    skos:prefLabel "Freestyle"@en, "Nage Libre"@fr ;
+    skos:broader jo:Swimming .
+
+# sports d'équipe
+jo:TeamSports rdf:type skos:Concept ;
+    skos:prefLabel "Team Sports"@en, "Sports d'Équipe"@fr ;
+    skos:inScheme jo:SportsThesaurus ;
+    skos:narrower jo:Basketball, jo:Volleyball, jo:Football, jo:Hockey .
+
+# sports de combat
+jo:CombatSports rdf:type skos:Concept ;
+    skos:prefLabel "Combat Sports"@en, "Sports de Combat"@fr ;
+    skos:inScheme jo:SportsThesaurus ;
+    skos:narrower jo:Boxing, jo:Wrestling, jo:Judo .

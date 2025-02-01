@@ -1,0 +1,29 @@
+PREFIX schema1: <http://schema.org/>
+PREFIX jo: <http://example.org/jo-2024/>
+PREFIX oplwthr: <http://www.openlinksw.com/schemas/weatherreport#>
+
+SELECT ?event ?eventName ?venue ?city ?weather ?temperature ?wind ?date WHERE {
+  ?event a jo:SportingEvent ;
+         rdfs:label ?eventName ;
+         jo:hasVenue ?venue .
+  ?venue schema1:location ?city .
+
+  # Call the weather service to get the weather report for Paris
+  SERVICE <http://localhost/service/weather/getWeather?latitude=48.8566&longitude=2.3522> {
+    SELECT * WHERE {
+      [] a oplwthr:Report ;
+         schema1:contentLocation ?place ;
+         oplwthr:temperature ?temperature ;
+         oplwthr:wind ?wind ;
+         oplwthr:reportDate ?date ;
+         schema1:description ?weather .
+      
+      ?place a schema1:Place ;
+             schema1:name ?city ;
+             schema1:latitude ?latitude ;
+             schema1:longitude ?longitude .
+    }
+  }
+
+  FILTER (?city = "Paris")
+}

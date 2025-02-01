@@ -1,0 +1,162 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix jo: <http://example.org/jo-2024/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Règles de qualification
+jo:QualificationRule rdf:type jo:Rule ;
+    rdfs:label "Règle de qualification"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?athlete jo:isQualified true
+    }
+    WHERE {
+        ?athlete jo:hasPerformance ?perf .
+        ?event jo:qualificationStandard ?std .
+        FILTER(?perf <= ?std)
+    }""" .
+
+# Règles de records
+jo:RecordRule rdf:type jo:Rule ;
+    rdfs:label "Règle de record"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?result jo:isRecord true
+    }
+    WHERE {
+        ?result jo:hasPerformance ?perf .
+        ?event jo:hasResult ?result ;
+               jo:recordValue ?record .
+        FILTER(?perf < ?record)
+    }""" .
+
+# Règles d'équipes complètes
+jo:CompleteTeamRule rdf:type jo:Rule ;
+    rdfs:label "Règle d'équipe complète"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?team jo:isComplete true
+    }
+    WHERE {
+        ?team a jo:Team .
+        {
+            SELECT ?team (COUNT(?athlete) as ?count)
+            WHERE {
+                ?athlete jo:memberOf ?team
+            }
+            GROUP BY ?team
+        }
+        FILTER(?count >= ?team jo:minimumMembers)
+    }""" .
+
+# Règles de compatibilité des horaires
+jo:ScheduleCompatibilityRule rdf:type jo:Rule ;
+    rdfs:label "Règle de compatibilité des horaires"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?athlete jo:hasScheduleConflict true
+    }
+    WHERE {
+        ?athlete jo:participatesIn ?event1, ?event2 .
+        ?event1 jo:startDate ?start1 .
+        ?event2 jo:startDate ?start2 .
+        FILTER(?event1 != ?event2)
+        FILTER(abs(?start1 - ?start2) < "PT2H"^^xsd:duration)
+    }""" .
+
+# Règle d'inférence de coéquipiers
+jo:TeammateRule rdf:type jo:Rule ;
+    rdfs:label "Règle d'inférence de coéquipiers"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?athlete1 jo:hasTeammate ?athlete2
+    }
+    WHERE {
+        ?athlete1 jo:memberOf ?team .
+        ?athlete2 jo:memberOf ?team .
+        FILTER(?athlete1 != ?athlete2)
+    }""" .
+
+# Règle d'inférence de médailles par pays
+jo:CountryMedalsRule rdf:type jo:Rule ;
+    rdfs:label "Règle de comptage des médailles par pays"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?country jo:hasMedalCount ?count
+    }
+    WHERE {
+        SELECT ?country (COUNT(?medal) as ?count)
+        WHERE {
+            ?athlete jo:representCountry ?country ;
+                    jo:hasMedal ?medal .
+        }
+        GROUP BY ?country
+    }""" .
+
+# Règle d'inférence de médailles
+jo:MedalInferenceRule rdf:type jo:Rule ;
+    rdfs:label "Règle d'inférence de médailles"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?athlete jo:hasMedal ?medal
+    }
+    WHERE {
+        ?result jo:achievedBy ?athlete ;
+                jo:hasRank ?rank .
+        ?medal jo:rank ?rank .
+    }""" .
+
+# Règle pour calculer la moyenne des performances par discipline
+jo:AveragePerformanceRule a jo:Rule ;
+    rdfs:label "Règle de performance moyenne"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?discipline jo:averagePerformance ?avgPerf
+    }
+    WHERE {
+        SELECT ?discipline (AVG(?performance) as ?avgPerf)
+        WHERE {
+            ?event jo:discipline ?discipline ;
+                   jo:hasResult ?result .
+            ?result jo:hasPerformance ?performance .
+        }
+        GROUP BY ?discipline
+    }""" .
+
+# Règle pour détecter les athlètes multi-médaillés
+jo:MultiMedalistRule a jo:Rule ;
+    rdfs:label "Règle des multi-médaillés"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?athlete jo:isMultiMedalist true ;
+                jo:medalCount ?count
+    }
+    WHERE {
+        SELECT ?athlete (COUNT(?medal) as ?count)
+        WHERE {
+            ?result jo:achievedBy ?athlete ;
+                    jo:medalType ?medal .
+        }
+        GROUP BY ?athlete
+        HAVING (?count > 1)
+    }""" .
+
+# Règle pour identifier les pays dominants par discipline
+jo:DominantCountryRule a jo:Rule ;
+    rdfs:label "Règle des pays dominants"@fr ;
+    jo:hasSPARQLRule """
+    CONSTRUCT {
+        ?country jo:isDominantIn ?discipline
+    }
+    WHERE {
+        SELECT ?country ?discipline 
+        WHERE {
+            ?athlete jo:representCountry ?country .
+            ?result jo:achievedBy ?athlete ;
+                    jo:medalType "Gold Medal" ;
+                    jo:inEvent ?event .
+            ?event jo:discipline ?discipline .
+        }
+        GROUP BY ?country ?discipline
+        HAVING (COUNT(?result) >= 2)
+    }""" .

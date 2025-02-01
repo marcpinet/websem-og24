@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JO Paris 2024 - Explorateur de données</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4">
+        <div class="container mx-auto">
+            <h1 class="text-white text-2xl font-bold">JO Paris 2024 - Explorateur de données</h1>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Tableau des médailles -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Tableau des médailles</h2>
+                <button onclick="executeQuery('medailles_par_pays')" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    Actualiser
+                </button>
+                <div id="medals-table" class="overflow-x-auto">
+                    <!-- Le tableau sera rempli par JavaScript -->
+                </div>
+            </div>
+
+            <!-- Athlètes par pays -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Athlètes par pays</h2>
+                <div class="flex gap-4 mb-4">
+                    <select id="country-select" class="flex-1 p-2 border rounded" onchange="updateSelectedCountry(this.value)">
+                        <option value="">Sélectionnez un pays</option>
+                    </select>
+                    <button onclick="loadAthletesByCountry()" class="bg-blue-500 text-white px-4 py-2 rounded">
+                        Voir les athlètes
+                    </button>
+                </div>
+                <div id="athletes-list" class="overflow-y-auto max-h-96">
+                    <div id="athletes-container"></div>
+                    <!-- La liste sera remplie par JavaScript -->
+                </div>
+            </div>
+
+            <!-- Répartition par sport -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Répartition par sport</h2>
+                <button onclick="executeQuery('events_by_sport')" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    Voir les statistiques
+                </button>
+                <canvas id="sports-chart"></canvas>
+            </div>
+
+            <!-- Sites de compétition -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Répartition des épreuves par site</h2>
+                <button onclick="executeQuery('events_by_venue')" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    Voir les statistiques
+                </button>
+                <canvas id="venues-chart"></canvas>
+            </div>
+
+            <!-- Timeline des épreuves -->
+            <div class="bg-white p-4 rounded-lg shadow col-span-2">
+                <h2 class="text-xl font-bold mb-4">Timeline des épreuves</h2>
+                <button onclick="executeQuery('events_timeline')" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    Voir la timeline
+                </button>
+                <canvas id="timeline-chart"></canvas>
+            </div>
+
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">Météo sur les sites</h2>
+                <button onclick="executeQuery('weather_by_venue')" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+                    Voir la météo
+                </button>
+                <div id="weather-venues" class="overflow-x-auto">
+                    <!-- Les données météo seront insérées ici par JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let selectedCountry = '';
+
+        // Charger la liste des pays au démarrage
+        async function loadCountries() {
+            await executeQuery('get_countries');
+        }
+
+        async function updateSelectedCountry(country) {
+            selectedCountry = country;
+        }
+
+        async function loadAthletesByCountry() {
+            if (!selectedCountry) {
+                alert('Veuillez sélectionner un pays');
+                return;
+            }
+            const response = await fetch('/athletes_by_country', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ country: selectedCountry }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                displayAthletes(data.results);
+            }
+        }
+
+        async function executeQuery(queryName) {
+            try {
+                const response = await fetch('/execute_query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query_name: queryName }),
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    switch(queryName) {
+                        case 'medailles_par_pays':
+                            displayMedalsTable(data.results);
+                            break;
+                        case 'get_countries':
+                            displayCountriesList(data.results);
+                            break;
+                        case 'events_by_venue':
+                            displayVenuesChart(data.results);
+                            break;
+                        case 'events_by_sport':
+                            displaySportsChart(data.results);
+                            break;
+                        case 'events_timeline':
+                            displayTimelineChart(data.results);
+                            break;
+                        case 'weather_by_venue':
+                            displayWeatherByVenue(data.results);
+                            break;
+                    }
+                } else {
+                    console.error('Query error:', data.error);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+            }
+        }
+
+        function displayMedalsTable(results) {
+            const table = `
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-2 text-left">Pays</th>
+                            <th class="px-4 py-2 text-center">🥇</th>
+                            <th class="px-4 py-2 text-center">🥈</th>
+                            <th class="px-4 py-2 text-center">🥉</th>
+                            <th class="px-4 py-2 text-center">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(row => `
+                            <tr class="border-t">
+                                <td class="px-4 py-2">${formatCountryName(row.country)}</td>
+                                <td class="px-4 py-2 text-center">${row.goldCount}</td>
+                                <td class="px-4 py-2 text-center">${row.silverCount}</td>
+                                <td class="px-4 py-2 text-center">${row.bronzeCount}</td>
+                                <td class="px-4 py-2 text-center font-bold">
+                                    ${parseInt(row.goldCount) + parseInt(row.silverCount) + parseInt(row.bronzeCount)}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('medals-table').innerHTML = table;
+        }
+
+        function displayCountriesList(results) {
+            const select = document.getElementById('country-select');
+            select.innerHTML = '<option value="">Sélectionnez un pays</option>' +
+                results.map(country => `
+                    <option value="${country.country}">${formatCountryName(country.country)}</option>
+                `).join('');
+        }
+
+        function displayAthletes(results) {
+            const athletesList = `
+                <div class="grid grid-cols-1 gap-4">
+                    ${results.map(athlete => `
+                        <div class="border p-4 rounded hover:bg-gray-50 cursor-pointer"
+                            onclick="showAthleteDetails('${athlete.name}')">
+                            <h3 class="font-bold">${athlete.name}</h3>
+                            <p class="text-gray-600">${athlete.sportLabel || 'Sport non spécifié'}</p>
+                            ${athlete.medalType ? 
+                                `<p class="text-sm mt-1">
+                                    ${getMedalEmoji(athlete.medalType)} ${athlete.medalType}
+                                </p>` : 
+                                ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('athletes-container').innerHTML = athletesList;
+        }
+
+        function displayVenuesChart(results) {
+            const ctx = document.getElementById('venues-chart').getContext('2d');
+            
+            if (window.venuesChart) {
+                window.venuesChart.destroy();
+            }
+            
+            window.venuesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: results.map(r => r.venueName),
+                    datasets: [{
+                        label: 'Nombre d\'épreuves',
+                        data: results.map(r => r.eventCount),
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function displaySportsChart(results) {
+            const ctx = document.getElementById('sports-chart').getContext('2d');
+            
+            if (window.sportsChart) {
+                window.sportsChart.destroy();
+            }
+            
+            window.sportsChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: results.map(r => r.sportName),
+                    datasets: [{
+                        data: results.map(r => r.eventCount),
+                        backgroundColor: results.map((_, i) => `hsl(${i * 360/results.length}, 70%, 60%)`),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayTimelineChart(results) {
+            const ctx = document.getElementById('timeline-chart').getContext('2d');
+            
+            if (window.timelineChart) {
+                window.timelineChart.destroy();
+            }
+            
+            // Convertir les dates en objets Date pour un tri correct
+            const processedResults = results.map(r => ({
+                ...r,
+                parsedDate: new Date(r.date)
+            })).sort((a, b) => a.parsedDate - b.parsedDate);
+
+            window.timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: processedResults.map(r => {
+                        // Formater la date de manière lisible
+                        return r.parsedDate.toLocaleDateString('fr-FR', { 
+                            day: 'numeric', 
+                            month: 'short' 
+                        });
+                    }),
+                    datasets: [{
+                        label: 'Nombre d\'épreuves par jour',
+                        data: processedResults.map(r => r.eventCount),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4, // Courbe légèrement arrondie
+                        fill: true,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false,
+                    },
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.7)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Timeline des Épreuves Olympiques',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date',
+                                color: 'rgb(59, 130, 246)'
+                            },
+                            grid: {
+                                color: 'rgba(59, 130, 246, 0.1)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre d\'épreuves',
+                                color: 'rgb(59, 130, 246)'
+                            },
+                            grid: {
+                                color: 'rgba(59, 130, 246, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayWeatherByVenue(results) {
+            const table = `
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-2 text-left">Site</th>
+                            <th class="px-4 py-2 text-left">Description</th>
+                            <th class="px-4 py-2 text-left">Température (°C)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map(row => `
+                        <tr class="border-t">
+                            <td class="px-4 py-2">${row.venueName}</td>
+                            <td class="px-4 py-2">${row.description}</td>
+                            <td class="px-4 py-2">${row.temperature}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('weather-venues').innerHTML = table;
+        }
+
+        function formatCountryName(uri) {
+            const parts = uri.split('/');
+            return parts[parts.length - 1].replace(/_/g, ' ');
+        }
+
+        function getMedalEmoji(medalType) {
+            switch(medalType) {
+                case 'Gold Medal': return '🥇';
+                case 'Silver Medal': return '🥈';
+                case 'Bronze Medal': return '🥉';
+                default: return '';
+            }
+        }
+
+        async function showAthleteDetails(athleteName) {
+            try {
+                const response = await fetch(`/athlete_details/${encodeURIComponent(athleteName)}`);
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error fetching athlete details:', error);
+            }
+        }
+
+        loadCountries(); 
+    </script>
+</body>
+</html>

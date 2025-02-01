@@ -1,0 +1,430 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema1: <http://schema.org/> .
+@prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix jo: <http://example.org/jo-2024/> .
+
+jo:OlympicGames2024 a jo:OlympicGames ;
+    rdfs:label "2024 Summer Olympics"@en, "Jeux Olympiques d'été 2024"@fr ;
+    jo:startDate "2024-07-26T00:00:00Z"^^xsd:dateTime ;
+    jo:endDate "2024-08-11T00:00:00Z"^^xsd:dateTime ;
+    schema1:location dbr:Paris ;
+    jo:hasEdition "33"^^xsd:integer ;
+    schema1:description "The 2024 Summer Olympics, officially the Games of the XXXIII Olympiad"@en .
+
+jo:Athletics a jo:IndividualSport ;
+    rdfs:label "Athletics"@en ;
+    jo:hasDiscipline jo:Sprint100m, jo:MarathonMen, jo:LongJump, jo:HighJump, jo:Relay4x100m .
+
+jo:Swimming a jo:IndividualSport ;
+    rdfs:label "Swimming"@en ;
+    jo:hasDiscipline jo:Freestyle100m, jo:Butterfly200m .
+
+jo:Basketball a jo:TeamSport ;
+    rdfs:label "Basketball"@en ;
+    jo:hasDiscipline jo:BasketballMen, jo:BasketballWomen .
+
+jo:Sprint100m a jo:TrackEvent ;
+    rdfs:label "100m Sprint"@en ;
+    jo:hasEvent jo:Sprint100mMenHeats, jo:Sprint100mMenSemiFinal, jo:Sprint100mMenFinal .
+
+jo:MarathonMen a jo:TrackEvent ;
+    rdfs:label "Men's Marathon"@en ;
+    jo:hasEvent jo:MarathonMenFinal .
+
+jo:Relay4x100m a jo:TrackEvent ;
+    rdfs:label "4x100m Relay"@en ;
+    jo:hasEvent jo:Relay4x100mMenFinal .
+
+jo:Sprint100mMenHeats a jo:QualifyingEvent ;
+    rdfs:label "Men's 100m Heats"@en ;
+    jo:startDate "2024-08-02T09:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:StadeDeFrance ;
+    jo:hasQualificationStandard "10.00"^^xsd:decimal .
+
+jo:Sprint100mMenSemiFinal a jo:QualifyingEvent ;
+    rdfs:label "Men's 100m Semi-Finals"@en ;
+    jo:startDate "2024-08-03T19:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:StadeDeFrance .
+
+jo:Sprint100mMenFinal a jo:MedalEvent ;
+    rdfs:label "Men's 100m Final"@en ;
+    jo:startDate "2024-08-04T20:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:StadeDeFrance .
+
+jo:Relay4x100mMenFinal a jo:MedalEvent ;
+    rdfs:label "Men's 4x100m Relay Final"@en ;
+    jo:startDate "2024-08-10T20:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:StadeDeFrance .
+
+jo:BasketballMen a jo:TeamCompetition ;
+    rdfs:label "Men's Basketball"@en ;
+    jo:hasVenue jo:AccorArena ;
+    jo:startDate "2024-07-27T00:00:00Z"^^xsd:dateTime ;
+    jo:endDate "2024-08-10T00:00:00Z"^^xsd:dateTime .
+
+jo:BasketballWomen a jo:TeamCompetition ;
+    rdfs:label "Women's Basketball"@en ;
+    jo:hasVenue jo:AccorArena ;
+    jo:startDate "2024-07-28T00:00:00Z"^^xsd:dateTime ;
+    jo:endDate "2024-08-11T00:00:00Z"^^xsd:dateTime .
+
+jo:Freestyle100m a jo:SwimmingEvent ;
+    rdfs:label "100m Freestyle"@en ;
+    jo:hasVenue jo:ParisAquaticsCentre .
+
+jo:Butterfly200m a jo:SwimmingEvent ;
+    rdfs:label "200m Butterfly"@en ;
+    jo:hasVenue jo:ParisAquaticsCentre .
+
+jo:LongJump a jo:FieldEvent ;
+    rdfs:label "Long Jump"@en ;
+    jo:hasVenue jo:StadeDeFrance .
+
+jo:HighJump a jo:FieldEvent ;
+    rdfs:label "High Jump"@en ;
+    jo:hasVenue jo:StadeDeFrance .
+
+jo:StadeDeFrance a jo:Stadium ;
+    rdfs:label "Stade de France"@en ;
+    schema1:address "93216 Saint-Denis, France" ;
+    schema1:capacity "80000"^^xsd:integer ;
+    schema1:geo [ 
+        a schema1:GeoCoordinates ;
+        schema1:latitude "48.9244"^^xsd:decimal ;
+        schema1:longitude "2.3601"^^xsd:decimal 
+    ] .
+
+jo:ParisAquaticsCentre a jo:SwimmingPool ;
+    rdfs:label "Paris Olympic Aquatics Centre"@en ;
+    schema1:address "Saint-Denis, France" ;
+    schema1:capacity "5000"^^xsd:integer ;
+    schema1:geo [ 
+        a schema1:GeoCoordinates ;
+        schema1:latitude "48.9236"^^xsd:decimal ;
+        schema1:longitude "2.3553"^^xsd:decimal 
+    ] .
+
+jo:AccorArena a jo:Stadium ;
+    rdfs:label "Accor Arena"@en ;
+    schema1:address "8 Boulevard de Bercy, 75012 Paris, France" ;
+    schema1:capacity "15000"^^xsd:integer ;
+    schema1:geo [ 
+        a schema1:GeoCoordinates ;
+        schema1:latitude "48.8389"^^xsd:decimal ;
+        schema1:longitude "2.3789"^^xsd:decimal 
+    ] .
+
+jo:UsainBoltJr a jo:Athlete ;
+    rdfs:label "Usain Bolt Jr."@en ;
+    foaf:name "Usain Bolt Jr." ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:Jamaica ;
+    jo:participatesIn jo:Sprint100mMenHeats, jo:Sprint100mMenSemiFinal, jo:Sprint100mMenFinal ;
+    jo:personalBest "9.82"^^xsd:decimal ;
+    jo:seasonBest "9.89"^^xsd:decimal ;
+    jo:isQualified "true"^^xsd:boolean .
+
+jo:EliudKipchoge a jo:Athlete ;
+    rdfs:label "Eliud Kipchoge"@en ;
+    foaf:name "Eliud Kipchoge" ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:Kenya ;
+    jo:participatesIn jo:MarathonMenFinal ;
+    jo:personalBest "2:01:09"^^xsd:string ;
+    jo:isQualified "true"^^xsd:boolean .
+
+jo:MarcelJacobs a jo:Athlete ;
+    rdfs:label "Marcel Jacobs"@en ;
+    foaf:name "Marcel Jacobs" ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:Italy ;
+    jo:participatesIn jo:Sprint100mMenHeats, jo:Sprint100mMenSemiFinal ;
+    jo:personalBest "9.80"^^xsd:decimal ;
+    jo:seasonBest "9.97"^^xsd:decimal ;
+    jo:isQualified "true"^^xsd:boolean .
+
+jo:USABasketballMen a jo:NationalTeam ;
+    rdfs:label "USA Men's Basketball Team"@en ;
+    jo:representCountry dbr:United_States .
+
+jo:FranceBasketballMen a jo:NationalTeam ;
+    rdfs:label "France Men's Basketball Team"@en ;
+    jo:representCountry dbr:France .
+
+jo:JoelEmbiid a jo:Athlete ;
+    rdfs:label "Joel Embiid"@en ;
+    foaf:name "Joel Embiid" ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:France ;
+    jo:memberOf jo:FranceBasketballMen ;
+    jo:isQualified "true"^^xsd:boolean ;
+    jo:participatesIn jo:BasketballMen .
+
+jo:RudyGobert a jo:Athlete ;
+    rdfs:label "Rudy Gobert"@en ;
+    foaf:name "Rudy Gobert" ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:France ;
+    jo:memberOf jo:FranceBasketballMen ;
+    jo:captainOf jo:FranceBasketballMen ;
+    jo:isQualified "true"^^xsd:boolean ;
+    jo:participatesIn jo:BasketballMen .
+
+jo:VincentCollet a jo:Coach ;
+    rdfs:label "Vincent Collet"@en ;
+    foaf:name "Vincent Collet" ;
+    jo:representCountry dbr:France ;
+    jo:coachOf jo:FranceBasketballMen .
+
+jo:SebastianCoe a jo:Official ;
+    rdfs:label "Sebastian Coe"@en ;
+    foaf:name "Sebastian Coe" ;
+    jo:role "World Athletics President" .
+
+jo:Heat1Result1 a jo:Result ;
+    jo:achievedBy jo:UsainBoltJr ;
+    jo:hasPerformance "9.91"^^xsd:decimal ;
+    jo:hasRank "1"^^xsd:integer ;
+    jo:inEvent jo:Sprint100mMenHeats .
+
+jo:Heat1Result2 a jo:Result ;
+    jo:achievedBy jo:MarcelJacobs ;
+    jo:hasPerformance "9.98"^^xsd:decimal ;
+    jo:hasRank "2"^^xsd:integer ;
+    jo:inEvent jo:Sprint100mMenHeats .
+
+jo:SemiFinal1Result1 a jo:Result ;
+    jo:achievedBy jo:UsainBoltJr ;
+    jo:hasPerformance "9.87"^^xsd:decimal ;
+    jo:hasRank "1"^^xsd:integer ;
+    jo:inEvent jo:Sprint100mMenSemiFinal .
+
+jo:Sprint100mWorldRecord a jo:WorldRecord ;
+    jo:performance "9.58"^^xsd:decimal ;
+    jo:setBy dbr:Usain_Bolt ;
+    jo:setAt dbr:2009_World_Championships_in_Athletics ;
+    jo:setOn "2009-08-16"^^xsd:date .
+
+jo:Sprint100mOlympicRecord a jo:OlympicRecord ;
+    jo:performance "9.63"^^xsd:decimal ;
+    jo:setBy dbr:Usain_Bolt ;
+    jo:setAt dbr:2012_Summer_Olympics ;
+    jo:setOn "2012-08-05"^^xsd:date .
+
+jo:GoldMedal a jo:GoldMedal ;
+    rdfs:label "Gold Medal"@en ;
+    schema1:award "Gold" ;
+    schema1:description "Olympic gold medal for first place"@en .
+
+jo:SilverMedal a jo:SilverMedal ;
+    rdfs:label "Silver Medal"@en ;
+    schema1:award "Silver" ;
+    schema1:description "Olympic silver medal for second place"@en .
+
+jo:BronzeMedal a jo:BronzeMedal ;
+    rdfs:label "Bronze Medal"@en ;
+    schema1:award "Bronze" ;
+    schema1:description "Olympic bronze medal for third place"@en .
+
+jo:Sprint100mMenFinalStats a schema1:EventSeries ;
+    schema1:name "Men's 100m Final Statistics"@en ;
+    jo:averageTime "9.89"^^xsd:decimal ;
+    jo:numberOfParticipants "8"^^xsd:integer ;
+    jo:qualifyingTime "10.05"^^xsd:decimal ;
+    jo:windSpeed "+0.2"^^xsd:decimal .
+
+jo:Sprint100mBroadcast a schema1:BroadcastEvent ;
+    schema1:name "Men's 100m Final Broadcast"@en ;
+    schema1:startDate "2024-08-04T20:00:00Z"^^xsd:dateTime ;
+    schema1:duration "PT30M"^^xsd:duration ;
+    jo:primaryBroadcaster dbr:France_Télévisions .
+
+jo:OmegaTiming a schema1:Organization ;
+    schema1:name "Omega Timing"@en ;
+    jo:providesServiceFor jo:Sprint100mMenFinal ;
+    jo:serviceType "Official Timekeeper" .
+
+jo:OlympicGames a rdfs:Class ;
+    rdfs:label "Olympic Games"@en .
+
+jo:IndividualSport a rdfs:Class ;
+    rdfs:label "Individual Sport"@en .
+
+jo:TeamSport a rdfs:Class ;
+    rdfs:label "Team Sport"@en .
+
+jo:TrackEvent a rdfs:Class ;
+    rdfs:label "Track Event"@en .
+
+jo:QualifyingEvent a rdfs:Class ;
+    rdfs:label "Qualifying Event"@en .
+
+jo:MedalEvent a rdfs:Class ;
+    rdfs:label "Medal Event"@en .
+
+jo:Stadium a rdfs:Class ;
+    rdfs:label "Stadium"@en .
+
+jo:SwimmingPool a rdfs:Class ;
+    rdfs:label "Swimming Pool"@en .
+
+jo:Athlete a rdfs:Class ;
+    rdfs:label "Athlete"@en .
+
+jo:NationalTeam a rdfs:Class ;
+    rdfs:label "National Team"@en .
+
+jo:Coach a rdfs:Class ;
+    rdfs:label "Coach"@en .
+
+jo:Official a rdfs:Class ;
+    rdfs:label "Official"@en .
+
+jo:Result a rdfs:Class ;
+    rdfs:label "Result"@en .
+
+jo:WorldRecord a rdfs:Class ;
+    rdfs:label "World Record"@en .
+
+jo:OlympicRecord a rdfs:Class ;
+    rdfs:label "Olympic Record"@en .
+
+jo:TeamCompetition a rdfs:Class ;
+    rdfs:label "Team Competition"@en .
+
+jo:SwimmingEvent a rdfs:Class ;
+    rdfs:label "Swimming Event"@en .
+
+jo:FieldEvent a rdfs:Class ;
+    rdfs:label "Field Event"@en .
+
+jo:hasVenue a rdf:Property ;
+    rdfs:label "has venue"@en ;
+    rdfs:domain jo:Event ;
+    rdfs:range jo:Venue .
+
+jo:representCountry a rdf:Property ;
+    rdfs:label "represents country"@en ;
+    rdfs:domain [ rdf:type owl:Class ;
+                  owl:unionOf (jo:Athlete jo:NationalTeam jo:Coach jo:Official) ] ;
+    rdfs:range dbr:Country .
+
+jo:participatesIn a rdf:Property ;
+    rdfs:label "participates in"@en ;
+    rdfs:domain jo:Athlete ;
+    rdfs:range jo:Event .
+
+jo:Sport a rdfs:Class ;
+    rdfs:label "Sport"@en .
+
+jo:IndividualSport rdfs:subClassOf jo:Sport .
+jo:TeamSport rdfs:subClassOf jo:Sport .
+
+jo:KevinDurant a jo:Athlete ;
+    rdfs:label "Kevin Durant"@en ;
+    foaf:name "Kevin Durant" ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:United_States ;
+    jo:memberOf jo:USABasketballMen ;
+    jo:isQualified "true"^^xsd:boolean ;
+    jo:participatesIn jo:BasketballMen .
+
+jo:StephenCurry a jo:Athlete ;
+    rdfs:label "Stephen Curry"@en ;
+    foaf:name "Stephen Curry" ;
+    foaf:gender "male" ;
+    jo:representCountry dbr:United_States ;
+    jo:memberOf jo:USABasketballMen ;
+    jo:captainOf jo:USABasketballMen ;
+    jo:isQualified "true"^^xsd:boolean ;
+    jo:participatesIn jo:BasketballMen .
+
+jo:BasketballMenGroupA a jo:GroupStage ;
+    rdfs:label "Men's Basketball Group A"@en ;
+    jo:hasTeam jo:FranceBasketballMen, jo:USABasketballMen ;
+    jo:startDate "2024-07-27T00:00:00Z"^^xsd:dateTime ;
+    jo:endDate "2024-08-04T00:00:00Z"^^xsd:dateTime .
+
+jo:BasketballMenQuarterFinal a jo:KnockoutStage ;
+    rdfs:label "Men's Basketball Quarter-Finals"@en ;
+    jo:startDate "2024-08-06T00:00:00Z"^^xsd:dateTime .
+
+jo:BasketballMenSemiFinal a jo:KnockoutStage ;
+    rdfs:label "Men's Basketball Semi-Finals"@en ;
+    jo:startDate "2024-08-08T00:00:00Z"^^xsd:dateTime .
+
+jo:BasketballMenFinal a jo:MedalEvent ;
+    rdfs:label "Men's Basketball Final"@en ;
+    jo:startDate "2024-08-10T20:00:00Z"^^xsd:dateTime .
+
+jo:Freestyle100mMenHeats a jo:QualifyingEvent ;
+    rdfs:label "Men's 100m Freestyle Heats"@en ;
+    jo:startDate "2024-07-28T09:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:ParisAquaticsCentre ;
+    jo:hasQualificationStandard "48.34"^^xsd:decimal .
+
+jo:Freestyle100mMenSemiFinal a jo:QualifyingEvent ;
+    rdfs:label "Men's 100m Freestyle Semi-Finals"@en ;
+    jo:startDate "2024-07-29T19:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:ParisAquaticsCentre .
+
+jo:Freestyle100mMenFinal a jo:MedalEvent ;
+    rdfs:label "Men's 100m Freestyle Final"@en ;
+    jo:startDate "2024-07-30T20:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:ParisAquaticsCentre .
+
+jo:MarathonMenFinal jo:startDate "2024-08-11T06:00:00Z"^^xsd:dateTime ;
+    jo:hasVenue jo:ParisStreets .
+
+jo:ParisStreets a jo:Route ;
+    rdfs:label "Paris Marathon Route"@en ;
+    schema1:address "Paris, France" ;
+    schema1:geo [ 
+        a schema1:GeoCoordinates ;
+        schema1:latitude "48.8566"^^xsd:decimal ;
+        schema1:longitude "2.3522"^^xsd:decimal 
+    ] .
+
+jo:GroupStage a rdfs:Class ;
+    rdfs:label "Group Stage"@en ;
+    rdfs:subClassOf jo:Event .
+
+jo:KnockoutStage a rdfs:Class ;
+    rdfs:label "Knockout Stage"@en ;
+    rdfs:subClassOf jo:Event .
+
+jo:Route a rdfs:Class ;
+    rdfs:label "Route"@en ;
+    rdfs:subClassOf jo:Venue .
+
+jo:Event a rdfs:Class ;
+    rdfs:label "Event"@en .
+
+jo:Venue a rdfs:Class ;
+    rdfs:label "Venue"@en .
+
+jo:hasTeam a rdf:Property ;
+    rdfs:label "has team"@en ;
+    rdfs:domain jo:GroupStage ;
+    rdfs:range jo:NationalTeam .
+
+jo:Sprint100mWorldRecord schema1:value [
+    a schema1:QuantitativeValue ;
+    schema1:value "9.58"^^xsd:decimal ;
+    schema1:unitCode "SEC" 
+] .
+
+jo:MarathonMenWorldRecord a jo:WorldRecord ;
+    jo:performance [
+        a schema1:QuantitativeValue ;
+        schema1:value "2:00:35"^^xsd:string ;
+        schema1:unitCode "HH:MM:SS"
+    ] ;
+    jo:setBy dbr:Kelvin_Kiptum ;
+    jo:setAt dbr:2023_Chicago_Marathon ;
+    jo:setOn "2023-10-08"^^xsd:date .

@@ -1,0 +1,41 @@
+PREFIX oplwthr: <http://www.openlinksw.com/schemas/weatherreport#>
+PREFIX schema1: <http://schema.org/>
+
+CONSTRUCT {
+  ?weather
+    a oplwthr:Report ;
+      schema1:contentLocation ?place ;
+      oplwthr:temperature ?temperatureStr ;
+      oplwthr:wind ?windStr ;
+      oplwthr:reportDate ?date ;
+      schema1:description ?description .
+
+  ?place
+    a schema1:Place;
+      schema1:name ?name ;
+      schema1:latitude ?latitude ;
+      schema1:longitude ?longitude .
+} WHERE {
+  [] api:name ?name ;
+      api:coord [
+        api:lat ?latitude ;
+        api:lon ?longitude
+      ] ;
+      api:weather [
+        api:description ?description
+      ] ;
+      api:main [
+        api:temp ?temperature
+      ] ;
+      api:wind [
+        api:speed ?wind
+      ] ;
+      api:dt ?date .
+  
+  # Perdre 1 heure sur un simple " ", je le retiendrai
+  BIND (REPLACE(?name, " ", "_") AS ?combinedName)
+  BIND (IRI(concat("http://localhost/ld/weather/", ?combinedName)) AS ?weather)
+  BIND (IRI(concat("http://localhost/ld/weather/", ?combinedName, "/place")) AS ?place)
+  BIND (STR(?temperature) AS ?temperatureStr)
+  BIND (STR(?wind) AS ?windStr)
+}

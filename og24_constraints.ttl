@@ -1,0 +1,122 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix jo: <http://example.org/jo-2024/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Contraintes pour les événements
+jo:EventShape a sh:NodeShape ;
+    sh:targetClass jo:Event ;
+    sh:property [
+        sh:path jo:startDate ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:lessThan jo:endDate 
+    ] ;
+    sh:property [
+        sh:path jo:hasVenue ;
+        sh:class jo:Venue ;
+        sh:minCount 1 
+    ] ;
+    sh:property [
+        sh:path jo:hasResult ;
+        sh:class jo:Result ;
+        sh:minCount 0
+    ] ;
+    sh:property [
+        sh:path jo:hasWeatherReport ;
+        sh:class jo:WeatherReport ;
+        sh:minCount 0 ;
+        sh:maxCount 1
+    ] .
+
+# Contraintes pour les résultats
+jo:ResultShape a sh:NodeShape ;
+    sh:targetClass jo:Result ;
+    sh:property [
+        sh:path jo:achievedBy ;
+        sh:class jo:Athlete ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path jo:hasPerformance ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minExclusive 0
+    ] ;
+    sh:property [
+        sh:path jo:hasRank ;
+        sh:datatype xsd:integer ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1
+    ] .
+
+# Contraintes pour les équipes
+jo:TeamShape a sh:NodeShape ;
+    sh:targetClass jo:Team ;
+    sh:property [
+        sh:path jo:hasTeamMember ;
+        sh:class jo:Athlete ;
+        sh:minCount 1
+    ] ;
+    sh:property [
+        sh:path jo:representCountry ;
+        sh:class jo:Country ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path jo:hasCoach ;
+        sh:class jo:Coach ;
+        sh:minCount 0
+    ] .
+
+# Contraintes pour les rapports météo
+jo:WeatherReportShape a sh:NodeShape ;
+    sh:targetClass jo:WeatherReport ;
+    sh:property [
+        sh:path jo:temperature ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive -20 ;
+        sh:maxInclusive 50
+    ] ;
+    sh:property [
+        sh:path jo:windSpeed ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100
+    ] ;
+    sh:property [
+        sh:path jo:description ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .
+
+# Contraintes sur la qualification des athlètes
+jo:AthleteQualificationShape a sh:NodeShape ;
+    sh:targetClass jo:Athlete ;
+    sh:property [
+        sh:path jo:personalBest ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path jo:seasonBest ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 0 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path jo:isQualified ;
+        sh:datatype xsd:boolean ;
+        sh:minCount 0 ;
+        sh:maxCount 1
+    ] .

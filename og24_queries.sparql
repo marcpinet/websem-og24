@@ -1,0 +1,256 @@
+PREFIX schema1: <http://schema.org/>
+PREFIX jo: <http://example.org/jo-2024/>
+PREFIX oplwthr: <http://www.openlinksw.com/schemas/weatherreport#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+
+# 1. Chaînes de connexions entre athlètes via équipes et événements
+
+# Question : Quels sont les athlètes qui sont connectés par des équipes ou des événements ?
+
+SELECT DISTINCT ?athlete1Name ?connection ?athlete2Name
+WHERE {
+    {
+        ?athlete1 jo:memberOf ?team .
+        ?athlete2 jo:memberOf ?team .
+        ?athlete1 foaf:name ?athlete1Name .
+        ?athlete2 foaf:name ?athlete2Name .
+        BIND("Même équipe" as ?connection)
+    } UNION {
+        ?athlete1 jo:participatesIn ?event .
+        ?athlete2 jo:participatesIn ?event .
+        ?athlete1 foaf:name ?athlete1Name .
+        ?athlete2 foaf:name ?athlete2Name .
+        BIND("Même événement" as ?connection)
+    }
+    FILTER(?athlete1 != ?athlete2)
+}
+
+# 2. Nombre d'athlètes par pays
+
+# Question : Combien d'athlètes représentent chaque pays ?
+
+SELECT ?country (COUNT(?athlete) as ?numberOfAthletes)
+WHERE {
+    ?athlete a jo:Athlete ;
+            jo:representCountry ?country .
+}
+GROUP BY ?country
+ORDER BY DESC(?numberOfAthletes)
+
+#3. Nombre d'événements par discipline
+
+# Question : Combien d'événements sont organisés pour chaque discipline ?
+
+SELECT ?disciplineName (COUNT(DISTINCT ?event) as ?eventCount)
+WHERE {
+    ?event a jo:SportingEvent ;
+           jo:discipline ?disciplineName .
+}
+GROUP BY ?disciplineName
+ORDER BY DESC(?eventCount)
+
+#4. Dates de début des événements
+
+# Question : Quels sont les noms et les dates de début des événements ?
+
+SELECT ?eventName ?startDate
+WHERE {
+    ?event rdfs:label ?eventName ;
+           jo:startDate ?startDate .
+}
+ORDER BY ?startDate
+LIMIT 50
+
+#5. Nombre de médailles par athlètes
+
+# Question : Combien de médailles chaque athlète a-t-il remporté ?
+
+SELECT ?athleteName ?country 
+       (COUNT(DISTINCT ?goldResult) AS ?goldCount)
+       (COUNT(DISTINCT ?silverResult) AS ?silverCount)
+       (COUNT(DISTINCT ?bronzeResult) AS ?bronzeCount)
+WHERE {
+    ?athlete a jo:Athlete ;
+             rdfs:label ?athleteName ;
+             jo:representCountry ?country .
+    
+    OPTIONAL {
+        ?goldResult jo:achievedBy ?athlete ;
+                    jo:medalType "Gold Medal"
+    }
+    OPTIONAL {
+        ?silverResult jo:achievedBy ?athlete ;
+                      jo:medalType "Silver Medal"
+    }
+    OPTIONAL {
+        ?bronzeResult jo:achievedBy ?athlete ;
+                      jo:medalType "Bronze Medal"
+    }
+}
+GROUP BY ?athleteName ?country
+ORDER BY DESC(?goldCount) DESC(?silverCount) DESC(?bronzeCount)
+LIMIT 20
+
+#6. Nombre de médailles par pays par discipline
+
+# Question : Combien de médailles chaque pays a-t-il remporté dans chaque discipline ?
+
+SELECT ?country ?discipline 
+      (COUNT(DISTINCT ?goldResult) AS ?goldCount)
+      (COUNT(DISTINCT ?silverResult) AS ?silverCount)
+      (COUNT(DISTINCT ?bronzeResult) AS ?bronzeCount)
+WHERE {
+   {
+       ?goldResult jo:achievedBy ?athlete ;
+                   jo:medalType "Gold Medal" .
+       ?athlete jo:representCountry ?country .
+       ?event jo:hasResult ?goldResult ;
+              jo:discipline ?discipline .
+   }
+   OPTIONAL {
+       ?silverResult jo:achievedBy ?athlete ;
+                     jo:medalType "Silver Medal" .
+   }
+   OPTIONAL {
+       ?bronzeResult jo:achievedBy ?athlete ;
+                     jo:medalType "Bronze Medal" .
+   }
+}
+GROUP BY ?country ?discipline
+ORDER BY DESC(?goldCount) DESC(?silverCount) DESC(?bronzeCount)
+LIMIT 30
+
+#7. Nombre d'événements par mois
+
+# Question : Combien d'événements sont organisés chaque mois et où ?
+
+SELECT (MONTH(?startDate) AS ?month)
+      (COUNT(DISTINCT ?event) AS ?eventCount)
+      (GROUP_CONCAT(DISTINCT ?eventLabel; SEPARATOR=", ") AS ?eventLabels)
+      (GROUP_CONCAT(DISTINCT ?venueName; SEPARATOR=", ") AS ?venues)
+WHERE {
+   ?event jo:startDate ?startDate ;
+          rdfs:label ?eventLabel .
+   OPTIONAL {
+       ?event jo:hasVenue ?venue .
+       ?venue rdfs:label ?venueName .
+   }
+}
+GROUP BY (MONTH(?startDate))
+ORDER BY ?month
+
+#8. Athlètes connectés par des événements
+
+# Question : Quels sont les athlètes qui sont connectés par des événements ?
+
+SELECT ?athlete1Name ?athlete2Name ?eventLabel
+WHERE {
+    ?event rdfs:label ?eventLabel ;
+           jo:hasResult ?result1, ?result2 .
+    ?result1 jo:achievedBy ?athlete1 .
+    ?result2 jo:achievedBy ?athlete2 .
+    ?athlete1 rdfs:label ?athlete1Name .
+    ?athlete2 rdfs:label ?athlete2Name .
+    FILTER (?athlete1 != ?athlete2)
+}
+LIMIT 50
+
+
+#9. Répartition des médailles par pays et par discipline
+
+# Question : Quelle est la répartition des médailles par pays et par discipline ?
+
+SELECT ?country 
+       (COUNT(DISTINCT ?goldResult) AS ?goldCount)
+       (COUNT(DISTINCT ?silverResult) AS ?silverCount)
+       (COUNT(DISTINCT ?bronzeResult) AS ?bronzeCount)
+       (GROUP_CONCAT(DISTINCT ?discipline; SEPARATOR=", ") AS ?disciplines)
+WHERE {
+    {
+        ?goldResult jo:achievedBy ?athlete ;
+                    jo:medalType "Gold Medal" .
+        ?athlete jo:representCountry ?country .
+        ?event jo:hasResult ?goldResult ;
+               jo:discipline ?discipline .
+    }
+    OPTIONAL {
+        ?silverResult jo:achievedBy ?athlete ;
+                      jo:medalType "Silver Medal" .
+    }
+    OPTIONAL {
+        ?bronzeResult jo:achievedBy ?athlete ;
+                      jo:medalType "Bronze Medal" .
+    }
+}
+GROUP BY ?country
+ORDER BY DESC(?goldCount)
+LIMIT 20
+
+#10. Événements avec des conditions météorologiques extrêmes
+
+# Question : Quels sont les événements qui ont eu des conditions météorologiques extrêmes ?
+
+SELECT ?eventLabel ?venueName 
+       ?weatherDescription 
+       ?temperature
+WHERE {
+    ?event a jo:MedalEvent ;
+           rdfs:label ?eventLabel ;
+           jo:hasVenue ?venue ;
+           jo:hasWeatherReport ?weatherReport .
+    ?venue rdfs:label ?venueName .
+    ?weatherReport jo:description ?weatherDescription ;
+                   jo:temperature ?temperature .
+    FILTER (?temperature < 10 || ?temperature > 25)
+}
+
+#11. Requête féderée pour obtenir les rapports météorologiques
+
+# Question : Comment obtenir les rapports météorologiques pour les événements sportifs ?
+
+CONSTRUCT {
+  ?event a jo:SportingEvent ;
+         rdfs:label ?eventName ;
+         jo:hasVenue ?venue ;
+         jo:weatherReport ?weatherReport .
+
+  ?venue schema1:location ?city .
+
+  ?weatherReport a oplwthr:Report ;
+                 schema1:contentLocation ?place ;
+                 oplwthr:temperature ?temperature ;
+                 oplwthr:wind ?wind ;
+                 oplwthr:reportDate ?date ;
+                 schema1:description ?weather .
+
+  ?place a schema1:Place ;
+         schema1:name ?city ;
+         schema1:latitude ?latitude ;
+         schema1:longitude ?longitude .
+} WHERE {
+  ?event a jo:SportingEvent ;
+         rdfs:label ?eventName ;
+         jo:hasVenue ?venue .
+  ?venue schema1:location ?city .
+
+  # Call the weather service to get the weather report for Paris
+  SERVICE <http://localhost/service/weather/getWeather?latitude=48.8566&longitude=2.3522> {
+    SELECT * WHERE {
+      [] a oplwthr:Report ;
+         schema1:contentLocation ?place ;
+         oplwthr:temperature ?temperature ;
+         oplwthr:wind ?wind ;
+         oplwthr:reportDate ?date ;
+         schema1:description ?weather .
+      
+      ?place a schema1:Place ;
+             schema1:name ?city ;
+             schema1:latitude ?latitude ;
+             schema1:longitude ?longitude .
+    }
+  }
+
+  BIND (IRI(concat("http://localhost/ld/weather/", ?city, "/report")) AS ?weatherReport)
+}
