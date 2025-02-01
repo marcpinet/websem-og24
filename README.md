@@ -14,7 +14,7 @@ This project builds an enriched semantic model of Olympic Games data through:
 
 ## 🧠 Deep Learning & NLP
 
-The project leverages spaCy's fr_core_news_lg model (1.7GB) for advanced text analysis:
+The project leverages [spaCy's fr_core_news_lg](https://spacy.io/models/fr) model (1.7GB) for advanced text analysis:
 - Named Entity Recognition optimized for athlete identification
 - Sport-specific term classification
 - Performance metric extraction
